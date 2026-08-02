@@ -1,0 +1,420 @@
+.modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-card h2 {
+      margin: 0 0 20px;
+      font-size: 20px;
+    }
+
+    .modal-card label {
+      display: block;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .modal-card label strong {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .modal-card input,
+    .modal-card textarea,
+    .modal-card select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    .modal-card input:focus,
+    .modal-card textarea:focus,
+    .modal-card select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(159, 107, 83, 0.12);
+    }
+
+    .modal-card textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-actions .primary-button {
+      background: var(--accent);
+      color: white;
+    }
+
+    .modal-actions .primary-button:hover {
+      background: var(--accent-dark);
+    }
+
+    .modal-actions .outline-button {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .modal-actions .outline-button:hover {
+      background: var(--surface-soft);
+    }
+
+    .modal-field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-field-group label {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 600px) {
+      .modal-field-group {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-card {
+        padding: 24px;
+      }
+    }
+
+    /* ===== 訂單展開/收合相關樣式 ===== */
+    .order-expand-button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      color: var(--accent);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .order-expand-button:hover {
+      background: var(--line);
+      border-color: var(--accent);
+    }
+
+    .order-list-hidden {
+      display: none;
+    }
+
+    .order-list-hidden.show {
+      display: grid;
+      gap: 12px;
+    }
+
+    /* ===== 新的平行排版佈局 ===== */
+    .admin-main {
+      max-width: 1600px !important;
+      margin: 0 auto !important;
+      padding: 24px 16px 60px !important;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr 1fr !important;
+      gap: 24px !important;
+    }
+
+    .admin-main > .card:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .card-section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 20px;
+    }
+
+    .card-section-title .emoji {
+      font-size: 24px;
+    }
+
+    /* 訂單管理獨佔一整行 */
+    .card-orders-management {
+      grid-column: 1 / -1 !important;
+    }
+
+    /* 已完成、已取消的包裝容器：跨滿整行，內部開獨立 2 欄等寬 grid，
+       不依賴外層 3 欄格線（3 欄沒辦法均分出兩個完全相等的區塊） */
+    .card-orders-secondary-row {
+      grid-column: 1 / -1 !important;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 24px !important;
+    }
+
+    /* 強制兩張卡片填滿各自的 grid cell，避免依卡片內部文字長度自行撐寬，
+       導致「已完成」「已取消」兩張卡片寬度不一致 */
+    .card-orders-secondary-row > .card {
+      width: 100% !important;
+      min-width: 0 !important; /* 允許卡片縮小到比內容更窄，內部文字自動換行而非撐開容器 */
+    }
+
+    .card-products {
+      grid-column: 1 / -1 !important;
+    }
+
+    /* ===== 訂單狀態顏色：跟前台 member-v2.css 的 .mc-pill / .mc-ribbon 色票一致 ===== */
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .status-dot.dot-pending { background-color: #6A1B9A; }
+    .status-dot.dot-confirmed { background-color: #5A6A85; }
+    .status-dot.dot-unpaid { background-color: #B78103; }
+    .status-dot.dot-preparing { background-color: #E65100; }
+    .status-dot.dot-shipping { background-color: #0D47A1; }
+    .status-dot.dot-arrived { background-color: #1B5E20; }
+    .status-dot.dot-completed { background-color: #666666; }
+    .status-dot.dot-cancelled { background-color: #C62828; }
+
+    /* 訂單卡片左側色條：用底色（非文字色）呼應前台底色，當作卡片狀態的視覺提示 */
+    .admin-order-card.status-pending { border-left: 4px solid #F3E5F5; }
+    .admin-order-card.status-confirmed { border-left: 4px solid #F5F7FA; }
+    .admin-order-card.status-unpaid { border-left: 4px solid #FFF8E1; }
+    .admin-order-card.status-preparing { border-left: 4px solid #FFF3E0; }
+    .admin-order-card.status-shipping { border-left: 4px solid #E3F2FD; }
+    .admin-order-card.status-arrived { border-left: 4px solid #E8F5E9; }
+    .admin-order-card.status-completed { border-left: 4px solid #F5F5F5; }
+    .admin-order-card.status-cancelled { border-left: 4px solid #FFEBEE; }
+
+    /* ===== 響應式設計 ===== */
+    @media (max-width: 1200px) {
+      .admin-main {
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .card-orders-management { grid-column: 1 / -1 !important; }
+      .card-orders-secondary-row { grid-column: 1 / -1 !important; }
+    }
+
+    @media (max-width: 1024px) {
+      .admin-main {
+        grid-template-columns: 1fr !important;
+      }
+      .card-orders-management, .card-products {
+        grid-column: 1 !important;
+      }
+      .card-orders-secondary-row {
+        grid-column: 1 !important;
+        grid-template-columns: 1fr !important; /* 小螢幕改成上下堆疊，避免兩張卡片擠得太窄 */
+      }
+    }
+
+    /* ===== 訂單卡片：明確改用 grid-template-areas 排版 =====
+       原本只用 grid-template-columns 沒定義 areas，瀏覽器會自動把多出來的
+       子元素塞進現有列、容易跟其他內容互相穿插重疊。改成明確命名每個區域，
+       讓圖片／資訊／功能／提示文字各自待在指定位置，不會再打架。 */
+    .admin-order-card {
+      grid-template-columns: 64px 1fr auto !important;
+      grid-template-areas:
+        "img info actions"
+        "hint hint hint" !important;
+      align-items: start !important;
+    }
+
+    .admin-order-card > img,
+    .admin-order-card > .no-image {
+      grid-area: img;
+    }
+
+    .admin-order-card > .admin-order-info {
+      grid-area: info;
+    }
+
+    .admin-order-card > .admin-order-actions {
+      grid-area: actions;
+      margin-top: 30px; /* 讓狀態選單跟「填寫交易資訊」整體往下推，視覺上跟資訊欄對齊 */
+    }
+
+    .order-status-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .order-status-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ===== 手動建單：會員搜尋與綁定 ===== */
+    .member-search-results {
+      display: grid;
+      gap: 4px;
+      margin-top: -6px;
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .member-result-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      width: 100%;
+      padding: 8px 10px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .member-result-item:hover {
+      background: var(--surface-soft);
+    }
+
+    .member-result-item strong {
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .member-result-item span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .member-search-empty {
+      padding: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .member-selected-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: -6px;
+      padding: 8px 12px;
+      background: rgba(159, 107, 83, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .member-clear-button {
+      border: none;
+      background: transparent;
+      color: var(--accent-dark);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .member-clear-button:hover {
+      color: var(--red);
+    }
+
+    .order-delete-hint {
+      grid-area: hint;
+      display: block;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      color: #999;
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    /* 手機版：圖片＋資訊一排，功能區單獨一排，提示文字最下面一排 */
+    @media (max-width: 560px) {
+      .admin-order-card {
+        grid-template-columns: 56px 1fr !important;
+        grid-template-areas:
+          "img info"
+          "actions actions"
+          "hint hint" !important;
+      }
+
+      .admin-order-card > .admin-order-actions {
+        margin-top: 0; /* 手機版不需要桌面版的對齊推移 */
+      }
+
+      .admin-order-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+
+      .order-status-row {
+        margin-top: 6px;
+        width: 100%;
+      }
+
+      .order-status-row select {
+        flex: 1 !important;
+        width: auto !important;
+      }
+
+      .admin-order-actions > button {
+        flex: none !important;
+        width: 100%;
+      }
+    }

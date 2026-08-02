@@ -1,0 +1,200 @@
+# YA3S 精品選物網站 `index.html` 資安審查報告
+
+**審查日期：** 2026年7月3日
+**審查對象：** `index.html` 檔案
+**審查目的：** 評估所提供的 HTML 檔案在部署為精品包網站時可能存在的資安風險，並提供相應的修復建議。
+
+## 1. 概述
+
+本次審查針對您提供的 `index.html` 檔案進行了詳細分析，特別關注了跨站腳本攻擊 (XSS)、敏感資訊洩漏、外部資源安全性以及會員系統相關的潛在風險。整體而言，該檔案在防止 XSS 攻擊方面做得相當不錯，透過 `escapeHtml` 函數對大部分動態內容進行了適當的轉義處理。然而，仍存在一些可以進一步加強的方面，以提升網站的整體安全性。
+
+## 2. 資安問題與風險評估
+
+### 2.1 跨站腳本攻擊 (XSS) 防護
+
+**發現：**
+*   程式碼中定義了一個 `escapeHtml` 函數（行 655-662），用於將 HTML 特殊字元（`&`, `<`, `>`, `"`, `'`）轉換為其對應的 HTML 實體。
+*   該函數在多處動態生成 HTML 內容時被廣泛使用，例如：
+    *   Hero 輪播區塊的產品名稱、圖片 URL 和價格（行 809-820）。
+    *   導航品牌選單和篩選晶片中的品牌名稱（行 847-850, 877-878）。
+    *   品牌卡片中的品牌名稱、Logo URL 和字母（行 921-926）。
+    *   商品列表中的產品 ID、圖片 URL、品牌、名稱、狀況和價格（行 998-1010）。
+    *   商品詳情頁的圖片 URL 和替代文字（行 1037-1042）。
+    *   會員訂單列表中的圖片 URL、產品名稱和品牌（行 1707-1719）。
+*   `showToast` 函數（行 1791-1797）使用 `textContent` 而非 `innerHTML` 來顯示訊息，有效避免了 Toast 訊息中的 XSS。
+*   `openFromQuery` 函數（行 1799-1803）從 URL 查詢字串中獲取產品 ID (`?p=`)，但僅在該 ID 存在於 `PRODUCTS` 陣列中時才呼叫 `openProductDetail`，這限制了惡意 ID 的直接利用。
+
+**風險評估：** **低**
+
+由於 `escapeHtml` 函數的廣泛應用，此網站遭受反射型或儲存型 XSS 攻擊的風險顯著降低。這是一個非常好的實踐。然而，仍需確保所有來自使用者輸入或外部資料源的內容，在插入到 DOM 之前都經過此函數處理，特別是當未來新增功能時。
+
+### 2.2 敏感資訊洩漏
+
+**發現：**
+*   Firebase 專案的配置資訊（`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`, `measurementId`）直接硬編碼在 JavaScript 程式碼中（行 617-625）。
+*   LINE 官方帳號 ID (`@obb0550c`) 也直接硬編碼在程式碼中（行 631）。
+*   會員的 Line ID 和電話號碼在會員中心頁面中可被編輯和儲存（行 507-508, 1344-1366），並儲存至 Firestore。
+
+**風險評估：** **中**
+
+Firebase 的客戶端 API Key 通常是公開的，用於前端應用程式與 Firebase 服務互動，本身洩漏風險較低。然而，最佳實踐是限制這些 API Key 的使用範圍（例如，透過 Firebase 控制台設定 HTTP 參照位址限制），以防止未經授權的濫用。LINE ID 雖然是公開資訊，但硬編碼在程式碼中也意味著一旦程式碼被公開，這些資訊會被輕易獲取。
+
+更重要的是，會員的 Line ID 和電話號碼屬於個人敏感資訊。雖然這些資訊透過 Firebase Firestore 儲存，但前端程式碼直接處理這些資訊的編輯和儲存邏輯，需要確保後端 Firestore 的安全規則 (Security Rules) 配置得當，以防止未經授權的讀取或修改。如果 Firestore 規則配置不當，即使前端程式碼沒有直接洩漏，攻擊者也可能繞過前端直接存取或修改資料。
+
+### 2.3 外部資源與 CDN 安全
+
+**發現：**
+*   引入了來自 `cdn.jsdelivr.net` 的 Tabler Icons 樣式表（行 11）。
+*   引入了來自 `cdn.jsdelivr.net` 的 Swiper CSS 和 JS 套件（行 13, 613）。
+*   引入了來自 `www.gstatic.com` 的 Firebase SDK（行 609-611）。
+*   Google Maps 的 `iframe` 嵌入（行 581-586）。
+
+**風險評估：** **低**
+
+所有外部資源都來自知名的 CDN 服務商，這降低了惡意注入的風險。然而，缺乏 Subresource Integrity (SRI) 檢查意味著如果 CDN 服務商本身遭到入侵，惡意內容可能會被注入。對於精品包網站這樣需要高度信任的平台，考慮為關鍵的外部腳本和樣式表添加 SRI 是一個好的做法。
+
+### 2.4 內容安全策略 (CSP)
+
+**發現：**
+*   `index.html` 檔案中未發現明確的 Content Security Policy (CSP) 設定（例如 `<meta http-equiv="Content-Security-Policy" ...>` 標籤或相關 HTTP 響應頭）。
+
+**風險評估：** **中**
+
+缺乏 CSP 是一個重要的安全漏洞。CSP 能夠有效緩解 XSS 和其他內容注入攻擊，即使應用程式本身存在漏洞，CSP 也能限制攻擊的影響範圍。沒有 CSP，瀏覽器會允許載入來自任何來源的腳本、樣式和圖片，這使得攻擊者更容易利用任何潛在的漏洞來執行惡意程式碼或載入惡意資源。
+
+### 2.5 認證與授權
+
+**發現：**
+*   使用了 Firebase Authentication 進行會員登入、註冊和登出（行 1237-1277）。
+*   會員資料（`displayName`, `lineId`, `phone`）儲存於 Firestore 的 `users` 集合中，並在登入後獲取和更新（行 1196-1235, 1344-1409）。
+*   收藏商品和訂單資訊也透過 Firebase Firestore 進行管理（行 1423-1721）。
+
+**風險評估：** **低** (前提是 Firestore 安全規則配置正確)
+
+Firebase Authentication 是一個成熟且安全的認證解決方案。關鍵在於 Firestore 的安全規則必須正確配置，以確保：
+1.  只有經過身份驗證的使用者才能讀取或寫入自己的個人資料。
+2.  使用者只能讀取或寫入自己的收藏和訂單資訊。
+3.  未經身份驗證的使用者無法存取敏感資料。
+
+如果 Firestore 安全規則配置不當，即使前端程式碼看起來安全，後端資料也可能面臨風險。
+
+### 2.6 其他潛在問題
+
+*   **註解中的敏感資訊：** 程式碼中包含一些註解，例如 `// ===== Firebase 設定 =====`，雖然本身無害，但應避免在生產環境的程式碼中包含過於詳細或可能洩漏內部邏輯的註解。這是一個小問題，但值得注意。
+*   **錯誤處理：** 程式碼中對 Firebase 相關操作的錯誤處理（例如 `console.error` 和 `showToast`）是存在的，這有助於使用者體驗，但也應確保錯誤訊息不會洩漏過多敏感的系統內部資訊。
+
+## 3. 修復建議
+
+根據上述分析，以下是提升 `index.html` 檔案資安的建議：
+
+### 3.1 實施內容安全策略 (CSP)
+
+**建議：** 立即為您的網站實施嚴格的 Content Security Policy (CSP)。您可以透過 HTTP 響應頭或在 `<head>` 標籤中添加 `<meta>` 標籤來實現。一個基本的 CSP 範例如下：
+
+```html
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' https://www.gstatic.com https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  img-src 'self' data: https://firebasestorage.googleapis.com;
+  font-src 'self' https://cdn.jsdelivr.net;
+  connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com;
+  frame-src https://www.google.com;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+```
+
+**說明：**
+*   `default-src 'self'`：限制所有資源預設只能從同源載入。
+*   `script-src`：允許來自 `self`、`www.gstatic.com` (Firebase) 和 `cdn.jsdelivr.net` (Swiper, Tabler Icons) 的腳本。
+*   `style-src`：允許來自 `self`、`unsafe-inline` (因為有內聯樣式) 和 `cdn.jsdelivr.net` 的樣式。建議盡量將內聯樣式移至外部 CSS 檔案，以移除 `unsafe-inline`。
+*   `img-src`：允許來自 `self`、`data:` (可能用於小圖標) 和 `firebasestorage.googleapis.com` (Firebase 儲存的圖片) 的圖片。
+*   `connect-src`：允許與 Firebase 相關的 API 端點進行連接。
+*   `frame-src`：允許 Google Maps 的 `iframe` 嵌入。
+*   `object-src 'none'`：禁止嵌入 Flash 或其他插件。
+*   `base-uri 'self'`：限制 `base` 標籤的 URL。
+*   `form-action 'self'`：限制表單提交的目標。
+
+請根據您的實際需求和未來可能引入的第三方服務調整此 CSP。建議先在報告模式下測試 CSP (`Content-Security-Policy-Report-Only`)，以確保不會阻擋合法資源。
+
+### 3.2 加強 Firebase API Key 安全性
+
+**建議：** 透過 Firebase 控制台為您的 API Key 設定 HTTP 參照位址限制。將其限制為只允許您的網站域名（例如 `*.yourdomain.com`）使用，以防止其他網站濫用您的 API Key。
+
+### 3.3 確保 Firestore 安全規則配置正確
+
+**建議：** 仔細審查並實施嚴格的 Firestore 安全規則，以確保：
+*   `users` 集合中的文件只能由對應的 `uid` 使用者讀取和寫入。
+*   `favorites` 和 `orders` 集合中的文件只能由對應的 `userId` 使用者讀取和寫入。
+*   `products` 和 `brandShowcase` 集合應設定為公開讀取，但寫入權限應僅限於管理員。
+
+範例 Firestore 安全規則片段：
+
+```firestore
+rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Products and Brand Showcase are public read
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth.token.admin == true; // Example for admin write
+    }
+    match /brandShowcase/{brandId} {
+      allow read: if true;
+      allow write: if request.auth.token.admin == true;
+    }
+
+    // User profiles: only authenticated users can read/write their own profile
+    match /users/{userId} {
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+
+    // Favorites: only authenticated users can manage their own favorites
+    match /favorites/{favoriteId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // Orders: only authenticated users can manage their own orders
+    match /orders/{orderId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+  }
+}
+```
+
+### 3.4 考慮為外部 CDN 資源添加 Subresource Integrity (SRI)
+
+**建議：** 對於從 CDN 載入的關鍵腳本和樣式表，考慮添加 SRI 屬性。這可以確保瀏覽器只載入那些其內容與您預期相符的資源，即使 CDN 服務器被入侵，也能防止惡意內容的注入。
+
+範例：
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" 
+      integrity="sha512-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" 
+      crossorigin="anonymous" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" 
+        integrity="sha512-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" 
+        crossorigin="anonymous"></script>
+```
+
+您可以使用線上工具（例如 [SRI Hash Generator](https://www.srihash.org/)）來生成這些雜湊值。
+
+### 3.5 審查並最小化內聯樣式和腳本
+
+**建議：** 盡量將內聯樣式（如行 15-270 中的 `<style>` 標籤內容）和內聯腳本（如 `onclick` 屬性）移至外部 CSS 和 JavaScript 檔案。這不僅有助於程式碼的組織和維護，也能讓 CSP 策略更加嚴格，減少對 `unsafe-inline` 的依賴。
+
+### 3.6 確保所有使用者輸入都經過 `escapeHtml` 處理
+
+**建議：** 在未來新增任何動態內容或使用者輸入時，務必確保所有插入到 DOM 中的文字內容都經過 `escapeHtml` 函數的處理。特別注意以下情況：
+*   任何透過 `innerHTML` 屬性設定的內容。
+*   任何作為 HTML 屬性值（例如 `alt`, `title`）的內容。
+*   任何可能包含使用者輸入的 URL 片段。
+
+## 4. 總結
+
+您提供的 `index.html` 檔案在防止 XSS 攻擊方面已經做得很好，這是一個堅實的基礎。然而，透過實施內容安全策略 (CSP)、加強 Firebase API Key 限制、確保 Firestore 安全規則的正確性，以及考慮為外部資源添加 SRI，可以顯著提升網站的整體安全防護能力，更好地保護使用者資料和網站的完整性。對於精品包這類高價值商品網站，這些安全措施尤為重要。
+
+如果您需要進一步的協助來實施這些建議，請隨時告知。

@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YA3S 後台上架</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-orders.css" />
+  <style>
+    /* ===== 交易資訊彈窗樣式 ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-card h2 {
+      margin: 0 0 20px;
+      font-size: 20px;
+    }
+
+    .modal-card label {
+      display: block;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .modal-card label strong {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    /* ===== 編輯商品：圖片縮圖列表樣式 ===== */
+    .edit-image-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .edit-image-item {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid var(--surface-soft);
+      cursor: grab;
+      background: var(--surface-soft);
+    }
+
+    .edit-image-item.dragging {
+      opacity: 0.4;
+    }
+
+    .edit-image-item.cover {
+      border-color: var(--accent);
+    }
+
+    .edit-image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .edit-image-item .cover-badge {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 10px;
+      text-align: center;
+      padding: 2px 0;
+    }
+
+    .edit-image-item .remove-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      font-size: 11px;
+      line-height: 18px;
+      text-align: center;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .edit-image-item .remove-btn:hover {
+      background: #c0392b;
+    }
+
+    .modal-card input,
+    .modal-card textarea,
+    .modal-card select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    .modal-card input:focus,
+    .modal-card textarea:focus,
+    .modal-card select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(159, 107, 83, 0.12);
+    }
+
+    .modal-card textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-actions .primary-button {
+      background: var(--accent);
+      color: white;
+    }
+
+    .modal-actions .primary-button:hover {
+      background: var(--accent-dark);
+    }
+
+    .modal-actions .outline-button {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .modal-actions .outline-button:hover {
+      background: var(--surface-soft);
+    }
+
+    .modal-field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-field-group label {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 600px) {
+      .modal-field-group {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-card {
+        padding: 24px;
+      }
+    }
+
+    /* ===== 訂單展開/收合相關樣式 ===== */
+    .order-expand-button, .history-expand-button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      color: var(--accent);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .order-expand-button:hover, .history-expand-button:hover {
+      background: var(--line);
+      border-color: var(--accent);
+    }
+
+    .order-list-hidden, .history-list-hidden {
+      display: none;
+    }
+
+    .order-list-hidden.show, .history-list-hidden.show {
+      display: grid;
+      gap: 12px;
+    }
+
+    /* ===== 新的平行排版佈局 ===== */
+    .admin-main {
+      max-width: 1600px !important;
+      margin: 0 auto !important;
+      padding: 24px 16px 60px !important;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr 1fr !important;
+      gap: 24px !important;
+    }
+
+    .admin-main > .card:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .card-section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 20px;
+    }
+
+    .card-section-title .emoji {
+      font-size: 24px;
+    }
+
+    .card-orders-management {
+      grid-column: 1 / -1;
+    }
+
+    .card-brand-management {
+      grid-column: 1 / -1;
+    }
+
+    .card-products {
+      grid-column: 1 / -1;
+    }
+
+    .card-members {
+      grid-column: 1 / -1;
+    }
+
+    .admin-member-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .admin-member-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+    }
+
+    .admin-member-info strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+
+    .admin-member-info small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .admin-member-contact-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 13px;
+    }
+
+    .admin-member-contact-display span strong {
+      display: inline;
+      font-size: 13px;
+    }
+
+    .admin-member-contact-edit {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .admin-member-contact-edit input {
+      flex: 1;
+      min-width: 120px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .admin-member-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .admin-member-actions button {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .admin-member-actions button:hover {
+      background: var(--surface-soft);
+    }
+
+    .admin-member-actions button.primary-button {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* 狀態顏色定義 */
+    .dot-cancelled { background-color: #95a5a6; } /* 灰色 */
+    
+    .status-label .dot-cancelled { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; background-color: #95a5a6; }
+
+    /* ===== 響應式設計 ===== */
+    @media (max-width: 1200px) {
+      .admin-main {
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .card-orders-management { grid-column: 1 / -1 !important; }
+      .card-orders-secondary-row { grid-column: 1 / -1 !important; }
+    }
+
+    @media (max-width: 1024px) {
+      .admin-main {
+        grid-template-columns: 1fr !important;
+      }
+      .card-orders-management, .card-products, .card-members {
+        grid-column: 1 !important;
+      }
+      .card-orders-secondary-row {
+        grid-column: 1 !important;
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* ===== 品牌管理（WE CARRY）===== */
+    .brand-management-hint {
+      margin: -8px 0 16px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .brand-add-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .brand-add-form input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    .brand-add-form input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(159, 107, 83, 0.12);
+    }
+
+    .brand-add-form button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .brand-add-form button:hover {
+      background: var(--accent-dark);
+    }
+
+    .brand-manage-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .brand-manage-card {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+    }
+
+    .brand-manage-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: contain;
+      padding: 6px;
+      box-sizing: border-box;
+      background: var(--surface-soft);
+      flex-shrink: 0;
+    }
+
+    .brand-letter-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .brand-manage-info {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .brand-manage-info strong {
+      font-size: 15px;
+    }
+
+    .brand-manage-info span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .brand-manage-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .brand-manage-actions button {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .brand-manage-actions button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .brand-manage-actions button.enabled-active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .brand-manage-actions button.enabled-active:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+      color: white;
+    }
+
+    .brand-manage-actions button.danger {
+      color: var(--red);
+    }
+
+    .brand-manage-actions button.danger:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .brand-manage-actions input[type="file"] {
+      display: none;
+    }
+
+    @media (max-width: 560px) {
+      .brand-manage-card {
+        grid-template-columns: 48px 1fr;
+        grid-template-areas:
+          "logo info"
+          "actions actions";
+      }
+
+      .brand-manage-logo,
+      .brand-letter-avatar {
+        grid-area: logo;
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
+      }
+
+      .brand-manage-info {
+        grid-area: info;
+      }
+
+      .brand-manage-actions {
+        grid-area: actions;
+        margin-top: 10px;
+        justify-content: flex-start;
+      }
+
+      .brand-manage-actions button {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <h1>YA<span>3S</span> 後台</h1>
+      <p>請使用員工帳號登入</p>
+      <input type="email" id="emailInput" placeholder="員工 Email" autocomplete="off" required />
+      <input type="password" id="passwordInput" placeholder="密碼" autocomplete="off" required />
+      <button type="submit" class="primary-button wide" id="loginSubmitButton">登入</button>
+      <p class="login-error" id="loginError" hidden></p>
+    </form>
+  </section>
+
+  <section id="forbiddenScreen" class="login-screen" hidden>
+    <div class="login-card">
+      <h1>YA<span>3S</span> 後台</h1>
+      <p>此帳號沒有後台權限，請聯絡管理員開通。</p>
+      <button type="button" class="outline-button wide" id="forbiddenLogoutButton">登出並換帳號</button>
+    </div>
+  </section>
+
+  <section id="adminScreen" class="admin-screen" hidden>
+    <header class="admin-header">
+      <h1>YA<span>3S</span> 後台上架</h1>
+      <button type="button" class="outline-button" id="logoutButton">登出</button>
+    </header>
+
+    <main class="admin-main">
+
+      <section class="card">
+        <h2 class="card-section-title">
+          <span class="emoji">📦</span>
+          新增商品
+        </h2>
+        <form id="productForm">
+          <label>
+            商品編號
+            <input type="text" id="productNoInput" placeholder="例如：BAG-0001" required />
+          </label>
+
+          <label>
+            品牌
+            <select id="brandInput" required>
+              <option value="" disabled selected>請選擇品牌</option>
+              <option value="Chanel">Chanel</option>
+              <option value="Louis Vuitton">Louis Vuitton</option>
+              <option value="Hermes">Hermes</option>
+              <option value="Gucci">Gucci</option>
+              <option value="Prada">Prada</option>
+              <option value="Burberry">Burberry</option>
+              <option value="其他">其他 (點擊輸入)</option>
+            </select>
+          </label>
+
+          <label id="otherBrandLabel" hidden>
+            自定義品牌名稱
+            <input type="text" id="otherBrandInput" placeholder="請輸入品牌名稱" />
+          </label>
+
+          <label>
+            商品類別（包型／配件類別）
+            <select id="bagTypeInput">
+              <option value="" selected>未分類（可先不選）</option>
+              <optgroup label="包款">
+                <option value="托特包">托特包</option>
+                <option value="肩背包">肩背包</option>
+                <option value="斜背包">斜背包</option>
+                <option value="手拿包">手拿包</option>
+                <option value="水桶包">水桶包</option>
+                <option value="後背包">後背包</option>
+                <option value="旅行袋">旅行袋</option>
+                <option value="化妝包">化妝包</option>
+              </optgroup>
+              <optgroup label="配件">
+                <option value="耳環">耳環</option>
+                <option value="項鍊">項鍊</option>
+                <option value="手鍊/手環">手鍊/手環</option>
+                <option value="戒指">戒指</option>
+                <option value="絲巾">絲巾</option>
+                <option value="皮帶">皮帶</option>
+                <option value="太陽眼鏡">太陽眼鏡</option>
+                <option value="鑰匙圈">鑰匙圈</option>
+              </optgroup>
+              <option value="其他">其他（點擊輸入）</option>
+            </select>
+          </label>
+
+          <label id="otherBagTypeLabel" hidden>
+            自定義類別名稱
+            <input type="text" id="otherBagTypeInput" placeholder="例如：卡夾、圍巾" />
+          </label>
+
+          <label>
+            商品名稱
+            <input type="text" id="nameInput" placeholder="例如：CHANEL 22 mini" required />
+          </label>
+
+          <label>
+            商品說明
+            <textarea id="subtitleInput" rows="3" placeholder="簡單描述商品特色、適合場合等" required></textarea>
+          </label>
+
+          <label>
+            狀況（選填）
+            <input type="text" id="conditionInput" placeholder="例如：約 9 成新" />
+          </label>
+
+          <label>
+            售價（台幣）
+            <input type="number" id="priceInput" min="0" step="1" placeholder="例如：19800" required />
+          </label>
+
+          <label>
+            商品照片（可選多張，第一張會是封面）
+            <input type="file" id="imageInput" accept="image/*" multiple required />
+          </label>
+
+          <div id="previewRow" class="preview-row"></div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="heroInput" />
+            加入首頁輪播圖
+          </label>
+
+          <button type="submit" class="primary-button wide" id="submitButton">上架商品</button>
+          <p class="upload-status" id="uploadStatus" hidden></p>
+        </form>
+      </section>
+
+      <section class="card card-brand-management">
+        <h2 class="card-section-title">
+          <span class="emoji">🏷️</span>
+          品牌管理（WE CARRY）
+        </h2>
+        <p class="brand-management-hint">設定各品牌的 Logo，並決定要不要在首頁 WE CARRY 露出。與商品上下架完全脫鉤，改一次全品牌通用。還沒上傳 Logo 的品牌會先用字母暫代。</p>
+        <form class="brand-add-form" id="brandAddForm">
+          <input type="text" id="newBrandInput" placeholder="新增其他品牌名稱（例如：Dior）" />
+          <button type="submit">新增品牌</button>
+        </form>
+        <div class="brand-manage-list" id="brandManageList"></div>
+      </section>
+
+      <section class="card card-orders-management">
+        <h2 class="card-section-title">
+          <span class="emoji">📋</span>
+          訂單管理（<span id="orderCount">0</span>）
+        </h2>
+
+        <details class="manual-order-box">
+          <summary>手動新增訂單</summary>
+          <form id="manualOrderForm" class="manual-order-form">
+            <label>
+              選擇商品
+              <select id="orderProductSelect" required>
+                <option value="" disabled selected>請選擇商品</option>
+              </select>
+            </label>
+            <label>
+              搜尋會員（輸入 email 或姓名關鍵字，選填）
+              <input type="text" id="orderMemberSearchInput" placeholder="留空＝不綁定會員（現場客人）" autocomplete="off" />
+            </label>
+            <div id="orderMemberResults" class="member-search-results" hidden></div>
+            <div id="orderMemberSelected" class="member-selected-chip" hidden>
+              <span id="orderMemberSelectedText"></span>
+              <button type="button" id="orderMemberClearButton" class="member-clear-button">✕</button>
+            </div>
+            <label>
+              客人姓名／暱稱
+              <input type="text" id="orderCustomerInput" placeholder="例如：陳小姐（LINE 客人）" required />
+            </label>
+            <label>
+              LINE ID（選填）
+              <input type="text" id="orderLineIdInput" placeholder="選填" />
+            </label>
+            <label>
+              電話號碼（選填）
+              <input type="tel" id="orderPhoneInput" placeholder="選填" />
+            </label>
+            <button type="submit" class="primary-button wide">建立訂單</button>
+          </form>
+        </details>
+
+        <div class="order-filter-bar">
+          <button type="button" class="order-filter-chip active" data-status="all">全部</button>
+          <button type="button" class="order-filter-chip" data-status="pending">處理中</button>
+          <button type="button" class="order-filter-chip" data-status="confirmed">已確認</button>
+          <button type="button" class="order-filter-chip" data-status="unpaid">未付款</button>
+          <button type="button" class="order-filter-chip" data-status="preparing">待出貨</button>
+          <button type="button" class="order-filter-chip" data-status="shipping">寄送中</button>
+          <button type="button" class="order-filter-chip" data-status="arrived">已送達指定地點</button>
+          <button type="button" class="order-filter-chip" data-status="completed">已完成</button>
+          <button type="button" class="order-filter-chip" data-status="cancelled">已取消</button>
+        </div>
+
+        <div id="orderList" class="admin-order-list"></div>
+        <div id="orderListHidden" class="order-list-hidden"></div>
+        <button type="button" id="orderExpandButton" class="order-expand-button" hidden>展開更多訂單</button>
+      </section>
+
+      <div class="card-orders-secondary-row">
+        <section class="card card-orders-history">
+          <h2 class="card-section-title">
+            <span class="emoji">📜</span>
+            已完成的歷史訂單（<span id="historyOrderCount">0</span>）
+          </h2>
+          <div id="historyOrderList" class="admin-order-list"></div>
+          <div id="historyOrderListHidden" class="history-list-hidden"></div>
+          <button type="button" id="historyExpandButton" class="history-expand-button" hidden>展開更多已完成訂單</button>
+        </section>
+
+        <section class="card card-orders-cancelled">
+          <h2 class="card-section-title">
+            <span class="emoji">🚫</span>
+            已取消訂單（<span id="cancelledOrderCount">0</span>）
+          </h2>
+          <div id="cancelledOrderList" class="admin-order-list"></div>
+        </section>
+      </div>
+
+      <section class="card card-products">
+        <h2 class="card-section-title">
+          <span class="emoji">✨</span>
+          已上架商品（<span id="productCount">0</span>）
+        </h2>
+        <div id="productList" class="admin-product-list"></div>
+      </section>
+
+      <section class="card card-members">
+        <h2 class="card-section-title">
+          <span class="emoji">👤</span>
+          會員管理（<span id="memberCount">0</span>）
+        </h2>
+        <div id="memberList" class="admin-member-list"></div>
+      </section>
+
+    </main>
+  </section>
+
+  <div class="modal-overlay" id="editProductModal">
+    <div class="modal-card">
+      <h2>編輯商品資訊</h2>
+      <form id="editProductForm">
+        <label>
+          <strong>商品編號 *</strong>
+          <input type="text" id="editProductNo" placeholder="例如：BAG-0001" required />
+        </label>
+
+        <label>
+          <strong>品牌 *</strong>
+          <select id="editProductBrand" required>
+            <option value="" disabled>請選擇品牌</option>
+            <option value="Chanel">Chanel</option>
+            <option value="Louis Vuitton">Louis Vuitton</option>
+            <option value="Hermes">Hermes</option>
+            <option value="Gucci">Gucci</option>
+            <option value="Prada">Prada</option>
+            <option value="Burberry">Burberry</option>
+            <option value="其他">其他 (點擊輸入)</option>
+          </select>
+        </label>
+
+        <label id="editOtherBrandLabel" hidden>
+          <strong>自定義品牌名稱</strong>
+          <input type="text" id="editOtherBrandInput" placeholder="請輸入品牌名稱" />
+        </label>
+
+        <label>
+          <strong>商品類別（包型／配件類別）</strong>
+          <select id="editBagType">
+            <option value="">未分類（可先不選）</option>
+            <optgroup label="包款">
+              <option value="托特包">托特包</option>
+              <option value="肩背包">肩背包</option>
+              <option value="斜背包">斜背包</option>
+              <option value="手拿包">手拿包</option>
+              <option value="水桶包">水桶包</option>
+              <option value="後背包">後背包</option>
+              <option value="旅行袋">旅行袋</option>
+              <option value="化妝包">化妝包</option>
+            </optgroup>
+            <optgroup label="配件">
+              <option value="耳環">耳環</option>
+              <option value="項鍊">項鍊</option>
+              <option value="手鍊/手環">手鍊/手環</option>
+              <option value="戒指">戒指</option>
+              <option value="絲巾">絲巾</option>
+              <option value="皮帶">皮帶</option>
+              <option value="太陽眼鏡">太陽眼鏡</option>
+              <option value="鑰匙圈">鑰匙圈</option>
+            </optgroup>
+            <option value="其他">其他（點擊輸入）</option>
+          </select>
+        </label>
+
+        <label id="editOtherBagTypeLabel" hidden>
+          <strong>自定義類別名稱</strong>
+          <input type="text" id="editOtherBagTypeInput" placeholder="例如：卡夾、圍巾" />
+        </label>
+
+        <label>
+          <strong>商品名稱 *</strong>
+          <input type="text" id="editProductName" placeholder="例如：CHANEL 22 mini" required />
+        </label>
+
+        <label>
+          <strong>商品說明 *</strong>
+          <textarea id="editProductSubtitle" rows="3" placeholder="簡單描述商品特色" required></textarea>
+        </label>
+
+        <label>
+          <strong>狀況（選填）</strong>
+          <input type="text" id="editProductCondition" placeholder="例如：約 9 成新" />
+        </label>
+
+        <label>
+          <strong>售價（台幣） *</strong>
+          <input type="number" id="editProductPrice" min="0" step="1" placeholder="例如：19800" required />
+        </label>
+
+        <label>
+          <strong>商品照片</strong>
+          <small style="display:block; color:#888; margin-bottom:6px;">拖曳可調整順序，第一張為封面圖</small>
+          <div id="editImageList" class="edit-image-list"></div>
+          <button type="button" id="editAddImageButton" class="outline-button" style="margin-top:8px;">＋ 新增圖片</button>
+          <input type="file" id="editImageInput" accept="image/*" multiple hidden />
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="outline-button" id="editProductCancelButton">取消</button>
+          <button type="submit" class="primary-button">儲存修改</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="transactionModal">
+    <div class="modal-card">
+      <h2>填寫交易資訊</h2>
+      <form id="transactionForm">
+        <label>
+          <strong>交易人 *</strong>
+          <input type="text" id="transactionBuyerName" placeholder="客人姓名" required />
+        </label>
+
+        <label>
+          <strong>交貨日期 *</strong>
+          <input type="date" id="transactionDeliveryDate" required />
+        </label>
+
+        <label>
+          <strong>交貨地點 *</strong>
+          <input type="text" id="transactionDeliveryLocation" placeholder="例如：台北市信義區、面交、宅配" required />
+        </label>
+
+        <label>
+          <strong>匯款帳戶（選填）</strong>
+          <input type="text" id="transactionBankAccount" placeholder="例如：台灣銀行 xxx-xxx-xxx" />
+        </label>
+
+        <label>
+          <strong>備註（選填）</strong>
+          <textarea id="transactionNotes" placeholder="其他需要記錄的資訊"></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="outline-button" id="transactionCancelButton">取消</button>
+          <button type="submit" class="primary-button">確認並保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
