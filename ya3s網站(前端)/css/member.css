@@ -1,8 +1,7 @@
 /* ===================================================================
-   YA3S 會員中心 v2 — 精品質感升級版
-   說明：完全沿用 index.css 既有的 --bg / --ink / --accent / --line 等
-   CSS 變數，不另開新色票，確保與全站風格一致。
-   疊加順序：index.css → member.css → member-v2.css（最後載入，可覆蓋舊規則）
+   YA3S 會員中心 — Boutique Flagship 視覺
+   沿用 index.css 的 CSS 變數（--nav / --ink / --accent / --line ...），
+   與全站風格一致。疊加順序：index.css → member.css。
 =================================================================== */
 
 .member-page {
@@ -25,30 +24,32 @@
 }
 
 .member-page > .back-bar {
-  padding-top: 20px;
+  padding-top: 26px;
 }
 
 .member-page > .member-dashboard {
-  padding-bottom: 64px;
+  padding-bottom: 72px;
 }
 
-/* ---------- 登入 / 註冊卡：質感升級 ---------- */
+/* ---------- 登入 / 註冊卡 ---------- */
 .member-auth-area {
-  padding: 56px 0 72px;
+  padding: 44px 0 72px;
 }
 
 .member-auth-card {
-  max-width: 380px;
+  max-width: 400px;
+  margin: 0 auto;
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 36px 32px;
+  border-radius: 4px;
+  padding: 40px 36px 38px;
   background: var(--surface);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
 }
 
 .auth-tabs {
+  display: flex;
   gap: 0;
-  margin-bottom: 28px;
+  margin-bottom: 30px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -58,16 +59,15 @@
   border-radius: 0;
   background: transparent;
   padding: 4px 0 14px;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 17px;
   color: var(--muted);
   position: relative;
+  cursor: pointer;
 }
 
 .auth-tab.active {
   background: transparent;
   color: var(--ink);
-  border-color: transparent;
 }
 
 .auth-tab.active::after {
@@ -77,30 +77,60 @@
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: var(--accent);
+  background: var(--gold);
 }
 
-.auth-form label {
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.form-group label {
   color: var(--muted);
   font-size: 12.5px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 16px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 3px;
+  background: var(--surface);
   color: var(--ink);
-  background: var(--bg);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .auth-form input:focus {
-  outline: none;
-  border-color: var(--accent);
-  background: var(--surface);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(176, 141, 63, 0.14);
+}
+
+.auth-form .primary-button.wide {
+  margin-top: 8px;
 }
 
 .auth-error {
   color: #a13b3b;
+  font-size: 13.5px;
+}
+
+.auth-warning {
+  font-size: 12px;
+  color: var(--accent);
+  line-height: 1.6;
+  margin: -6px 0 6px;
 }
 
 /* ---------- 會員資料卡 ---------- */
@@ -110,10 +140,10 @@
 }
 
 .mc-profile-card {
-  background: var(--ink);
-  border-radius: 14px;
-  padding: 32px 32px 26px;
-  color: var(--bg);
+  background: var(--nav);
+  border-radius: 4px;
+  padding: 34px 34px 28px;
+  color: var(--nav-ink);
   position: relative;
   overflow: hidden;
 }
@@ -125,7 +155,7 @@
   right: -70px;
   width: 220px;
   height: 220px;
-  border: 1px solid rgba(251, 247, 240, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
 }
 
@@ -141,12 +171,11 @@
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background: var(--accent);
-  color: white;
+  background: var(--gold);
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 24px;
   flex-shrink: 0;
 }
@@ -160,21 +189,28 @@
 
 .mc-profile-id .mc-label {
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(251, 247, 240, 0.5);
+  color: var(--nav-muted);
+}
+
+.mc-profile-name {
+  font-size: 17px;
+  color: var(--nav-ink);
+  font-weight: 600;
 }
 
 .mc-profile-email {
-  font-size: 16px;
+  font-size: 15px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--nav-ink);
 }
 
 .mc-profile-since {
   font-size: 12.5px;
-  color: rgba(251, 247, 240, 0.5);
+  color: var(--nav-muted);
   margin-top: 1px;
 }
 
@@ -182,54 +218,132 @@
   margin-left: auto;
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid rgba(251, 247, 240, 0.3);
-  color: var(--bg);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: var(--nav-ink);
   font-size: 13px;
   padding: 8px 18px;
-  border-radius: 8px;
+  border-radius: 3px;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, color 0.2s;
 }
 
 .mc-profile-logout:hover {
-  border-color: rgba(251, 247, 240, 0.7);
-  background: rgba(251, 247, 240, 0.08);
+  border-color: var(--gold);
+  color: var(--gold);
 }
 
 .mc-profile-stats {
   display: flex;
-  gap: 36px;
+  gap: 40px;
   margin-top: 26px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(251, 247, 240, 0.14);
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   position: relative;
   z-index: 1;
 }
 
 .mc-stat strong {
   display: block;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 28px;
+  font-weight: 600;
   line-height: 1.1;
 }
 
 .mc-stat span {
   font-size: 12px;
   letter-spacing: 0.06em;
-  color: rgba(251, 247, 240, 0.55);
+  color: var(--nav-muted);
 }
 
-/* ---------- 進行中訂單提示橫幅 ---------- */
+/* ---------- 名稱編輯 ---------- */
+.mc-profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-name-edit-btn {
+  border: none;
+  background: transparent;
+  color: var(--nav-muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.mc-name-edit-btn:hover {
+  color: var(--gold);
+}
+
+.mc-profile-name-edit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.mc-profile-name-edit input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--nav-ink);
+  font-size: 14px;
+  outline: none;
+}
+
+.mc-profile-name-edit input:focus {
+  border-color: var(--gold);
+}
+
+.mc-name-save-btn,
+.mc-name-cancel-btn {
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mc-name-save-btn {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.mc-name-save-btn:hover {
+  background: #c2a054;
+}
+
+.mc-name-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mc-name-cancel-btn {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--nav-ink);
+}
+
+.mc-name-cancel-btn:hover {
+  border-color: var(--nav-ink);
+}
+
+/* ---------- 進行中訂單提示 ---------- */
 .mc-order-alert {
   width: 100%;
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 16px;
-  padding: 14px 18px;
-  border: 1px solid rgba(159, 107, 83, 0.3);
-  border-radius: 10px;
-  background: var(--accent-soft, #f1e9dc);
+  margin-top: 18px;
+  padding: 15px 18px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
   cursor: pointer;
   text-align: left;
   font-family: inherit;
@@ -237,7 +351,7 @@
 }
 
 .mc-order-alert:hover {
-  border-color: var(--accent);
+  border-color: var(--gold);
   transform: translateY(-1px);
 }
 
@@ -256,10 +370,9 @@
 }
 
 .mc-order-alert-text strong {
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 16px;
   color: var(--ink);
-  font-weight: normal;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -288,11 +401,11 @@
 .mc-pill.status-completed { background: #F5F5F5; color: #666666; }
 .mc-pill.status-cancelled { background: #FFEBEE; color: #C62828; }
 
-/* ---------- 分頁籤 ---------- */
+/* ---------- 會員分頁 ---------- */
 .member-tabs {
   display: flex;
-  gap: 30px;
-  margin: 32px 0 26px;
+  gap: 34px;
+  margin: 36px 0 28px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -302,7 +415,6 @@
   background: transparent;
   padding: 4px 4px 14px;
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 16.5px;
   color: var(--muted);
   position: relative;
@@ -313,7 +425,6 @@
 .member-tab.active {
   background: transparent;
   color: var(--ink);
-  border-color: transparent;
 }
 
 .member-tab.active::after {
@@ -323,12 +434,9 @@
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: var(--accent);
+  background: var(--gold);
 }
 
-/* 分頁內容：預設隱藏，只有 .active 才顯示。
-   原本缺少這組規則，導致「我的收藏」與「我的訂單」永遠同時顯示，
-   點擊切換時其實沒有真的切換內容，只是視覺上看不出差異。 */
 .member-tab-panel {
   display: none;
 }
@@ -337,7 +445,7 @@
   display: block;
 }
 
-/* ---------- 訂單：精品橱窗卡 ---------- */
+/* ---------- 訂單卡 ---------- */
 .member-orders-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -347,32 +455,30 @@
 .member-order-card {
   display: flex;
   flex-direction: column;
-  grid-template-columns: none;
   padding: 0;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--surface);
   overflow: hidden;
   position: relative;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
 }
 
 .member-order-card:hover {
   transform: translateY(-3px);
-  box-shadow: var(--shadow);
-  border-color: rgba(159, 107, 83, 0.4);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(176, 141, 63, 0.5);
 }
 
 .member-order-card img {
   width: 100%;
   height: auto;
   aspect-ratio: 1 / 1;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 0;
   background: var(--surface-soft);
 }
 
-/* 緞帶式狀態標籤 */
 .mc-ribbon {
   position: absolute;
   top: 12px;
@@ -382,7 +488,7 @@
   letter-spacing: 0.05em;
   padding: 5px 13px 5px 16px;
   z-index: 2;
-  box-shadow: 0 4px 10px -4px rgba(42, 31, 24, 0.4);
+  box-shadow: 0 4px 10px -4px rgba(29, 28, 32, 0.4);
 }
 
 .mc-ribbon::before {
@@ -407,7 +513,7 @@
 .status-cancelled .mc-ribbon { background: #FFEBEE; color: #C62828; }
 
 .member-order-info {
-  padding: 14px 16px 16px;
+  padding: 15px 16px 17px;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -415,16 +521,15 @@
 
 .member-order-info small {
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--accent);
 }
 
 .member-order-info strong {
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 17px;
   color: var(--ink);
-  font-weight: normal;
+  font-weight: 600;
   line-height: 1.3;
 }
 
@@ -438,8 +543,8 @@
 }
 
 .mc-order-footer span {
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 15px;
+  font-weight: 600;
   color: var(--ink);
 }
 
@@ -454,7 +559,7 @@
   text-align: center;
   padding: 60px 20px;
   border: 1px dashed var(--line);
-  border-radius: 12px;
+  border-radius: 4px;
   color: var(--muted);
   grid-column: 1 / -1;
 }
@@ -468,11 +573,10 @@
 
 .mc-empty strong {
   display: block;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 18px;
   color: var(--ink);
   margin-bottom: 6px;
-  font-weight: normal;
+  font-weight: 600;
 }
 
 .mc-empty p {
@@ -483,7 +587,7 @@
 /* ---------- RWD ---------- */
 @media (max-width: 560px) {
   .mc-profile-card {
-    padding: 24px 20px 20px;
+    padding: 26px 20px 22px;
   }
 
   .mc-profile-top {
@@ -495,7 +599,7 @@
   }
 
   .mc-profile-stats {
-    gap: 26px;
+    gap: 28px;
   }
 
   .member-orders-list {
@@ -520,194 +624,22 @@
   .mc-order-alert .ti {
     font-size: 19px;
   }
-}
 
-@media (max-width: 380px) {
-  .member-orders-list {
-    grid-template-columns: 1fr;
+  .member-auth-card {
+    padding: 30px 22px;
   }
-}
-/* 登入註冊卡片外殼 */
-.member-auth-card {
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-  max-width: 450px;
-  margin: 40px auto;
-}
 
-/* 頂部切換按鈕列 (Flex 並排) */
-.auth-tabs {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-/* 頂部切換按鈕基礎樣式 */
-.auth-tab {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.3s ease;
-  background-color: #f5f2eb; /* 預設為淺杏色（註冊按鈕） */
-  color: #8c6e57;
-}
-
-/* 當前作用中的按鈕樣式（登入深色） */
-.auth-tab.active {
-  background-color: #967259;
-  color: #ffffff;
-}
-
-/* 表單欄位排版 */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
-}
-
-.form-group label {
-  font-size: 14px;
-  color: #666;
-}
-
-/* 輸入框樣式 */
-.auth-form input {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #eadecc;
-  border-radius: 8px;
-  background-color: #faf8f5;
-  font-size: 15px;
-  box-sizing: border-box;
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: #967259;
-}
-
-/* 底部的寬版主按鈕 */
-.auth-form .primary-button.wide {
-  background-color: #967259;
-  color: #ffffff;
-  padding: 14px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background 0.2s;
-}
-
-.auth-form .primary-button.wide:hover {
-  background-color: #7f5f49;
-}
-
-/* ===== 會員中心：會員名稱顯示與編輯（新增區塊） ===== */
-.mc-profile-name-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.mc-profile-name {
-  font-size: 16px;
-  color: var(--bg);
-}
-
-.mc-name-edit-btn {
-  border: none;
-  background: transparent;
-  color: rgba(251, 247, 240, 0.6);
-  font-size: 13px;
-  cursor: pointer;
-  padding: 2px 4px;
-  line-height: 1;
-}
-
-.mc-name-edit-btn:hover {
-  color: var(--bg);
-}
-
-.mc-profile-name-edit {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 2px 0;
-}
-
-.mc-profile-name-edit input {
-  flex: 1;
-  min-width: 0;
-  padding: 6px 10px;
-  border: 1px solid rgba(251, 247, 240, 0.3);
-  border-radius: 6px;
-  background: rgba(251, 247, 240, 0.08);
-  color: var(--bg);
-  font-size: 14px;
-  outline: none;
-}
-
-.mc-profile-name-edit input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(159, 107, 83, 0.25);
-}
-
-.mc-name-save-btn,
-.mc-name-cancel-btn {
-  border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.mc-name-save-btn {
-  background: var(--accent);
-  color: white;
-}
-
-.mc-name-save-btn:hover {
-  background: var(--accent-dark);
-}
-
-.mc-name-save-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.mc-name-cancel-btn {
-  background: transparent;
-  border: 1px solid rgba(251, 247, 240, 0.3);
-  color: rgba(251, 247, 240, 0.8);
-}
-
-.mc-name-cancel-btn:hover {
-  border-color: var(--bg);
-  color: var(--bg);
-}
-
-@media (max-width: 560px) {
   .mc-profile-name-edit {
     flex-wrap: wrap;
   }
 
   .mc-profile-name-edit input {
     width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .member-orders-list {
+    grid-template-columns: 1fr;
   }
 }

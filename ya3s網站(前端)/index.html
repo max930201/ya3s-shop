@@ -5,250 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="YA3S 精選二手精品包款與小皮件，提供商品展示、品牌篩選與 LINE 詢問。" />
   <title>YA3S 精品選物</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/index.css" />
   <link rel="stylesheet" href="css/member.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <!-- 引入 Swiper CSS 套件 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  
+
   <style>
-    /* 強制 hero 區塊本身水平置中內容，避免外部 CSS 造成偏移 */
-    .hero {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    /* 滿版輪播外層容器（負責置中、控制最大寬度與限制橫向溢出） */
-    .hero-container-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      overflow: hidden;  /* 防止側邊露出的圖片撐開整個網頁的滾動條 */
-      padding: 20px 0 50px 0; /* 留出下方給分頁圓點的空間 */
-    }
-
-    .hero-container-wrapper .swiper {
-      width: 100%;
-      overflow: visible !important; /* 關鍵：讓左右兩側鄰近的 slide 能夠顯露出來 */
-      display: flex;
-      justify-content: center;
-    }
-
-    /* 輪播卡片樣式 */
-    .hero-container-wrapper .swiper-slide {
-      position: relative;
-      width: 70%; /* 關鍵：主圖佔據 70% 寬度，剩餘的 30% 分配給左右兩側露出 */
-      box-sizing: border-box;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-      background: #fff;
-      transition: transform 0.4s ease, opacity 0.4s ease;
-      opacity: 0.6; /* 非主圖的兩側圖片稍微淡化 */
-      transform: scale(0.9); /* 非主圖的兩側圖片稍微縮小，製造層次感 */
-    }
-
-    /* 當前正中間主圖的擴充樣式 */
-    .hero-container-wrapper .swiper-slide-active {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    /* 圖片包覆的按鈕，維持點擊可看詳情的功能 */
-    .hero-slide-btn {
-      display: block;
-      width: 100%;
-      padding: 0;
-      border: none;
-      background: none;
-      cursor: pointer;
-    }
-
-    .hero-slide-btn img {
-      display: block;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 2.1 / 1; /* 控制圖片比例 */
-      object-fit: cover;
-    }
-
-    /* 圖片上、商品資訊下：卡片改為正常文件流，不再疊加在圖片上 */
-    .hero-slide-card {
-      position: static;
-      max-width: none;
-      background: #ffffff;
-      padding: 14px 18px 18px;
-      border-radius: 0 0 12px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      text-align: left;
-      z-index: 2;
-    }
-    .hero-slide-card span {
-      display: inline-block;
-      align-self: flex-start;
-      font-size: 11px;
-      font-weight: 600;
-      color: #ffffff;
-      background: #c9a063;
-      letter-spacing: 1px;
-      padding: 3px 9px;
-      border-radius: 4px;
-    }
-    .hero-slide-card strong {
-      font-size: 16px;
-      color: #252321;
-      line-height: 1.3;
-    }
-    .hero-slide-card b {
-      font-size: 14px;
-      color: #c9a063;
-    }
-
-    /* 左右自訂箭頭（圓形陰影白底設計） */
-    .hero-swiper-prev, .hero-swiper-next {
-      width: 44px;
-      height: 44px;
-      background: #ffffff !important;
-      border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      border: none;
-      cursor: pointer;
-      z-index: 10;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-    .hero-swiper-prev::after, .hero-swiper-next::after {
-      font-size: 18px !important;
-      color: #333 !important;
-      font-weight: bold;
-    }
-    /* 調整箭頭位置，使其貼在「主圖」兩側邊緣 */
-    .hero-swiper-prev { left: 13%; }
-    .hero-swiper-next { right: 13%; }
-
-    /* 下方分頁圓點自訂顏色 */
-    .hero-container-wrapper .swiper-pagination-bullet-active {
-      background: #c9a063;
-    }
-
-    /* 手機版適應：在窄螢幕上讓主圖佔滿一點 */
-    @media (max-width: 768px) {
-      .hero-container-wrapper .swiper-slide {
-        width: 85%; 
-      }
-      .hero-swiper-prev { left: 5%; }
-      .hero-swiper-next { right: 5%; }
-      .hero-slide-card {
-        padding: 10px 14px 14px;
-      }
-    }
-
-    /* WE CARRY 品牌卡片（新增：含品牌代表商品圖） */
-    .brands-marquee-wrap {
-      overflow: hidden;
-    }
-    .brands-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: center;
-    }
-    .brands-marquee-wrap.is-scrolling .brands-row {
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-      width: max-content;
-      animation: brandsScroll 40s linear infinite;
-    }
-    .brands-marquee-wrap.is-scrolling:hover .brands-row {
-      animation-play-state: paused;
-    }
-    @keyframes brandsScroll {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .brands-marquee-wrap.is-scrolling .brands-row {
-        animation: none;
-      }
-    }
-    .brand-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      width: 130px;
-      padding: 0;
-      border: none;
-      background: none;
-      cursor: pointer;
-      transition: transform 0.25s ease;
-    }
-    .brand-card:hover {
-      transform: translateY(-4px);
-    }
-    .brand-card-image {
-      display: block;
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      overflow: hidden;
-      background: #f1ece4;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      border: 1px solid var(--line, #e6ded3);
-      padding: 16px;
-      box-sizing: border-box;
-    }
-    .brand-card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-    .brand-card-image--empty {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--accent, #9f6b53);
-    }
-    .brand-card-letter {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 44px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-    @media (max-width: 768px) {
-      .brand-card-letter { font-size: 32px; }
-    }
-    .brand-card-name {
-      font-size: 13px;
-      letter-spacing: 1px;
-      color: var(--ink, #252321);
-      font-weight: 600;
-    }
-    @media (max-width: 768px) {
-      .brand-card { width: 90px; }
-      .brand-card-image { width: 90px; height: 90px; padding: 10px; }
-      .brand-card-name { font-size: 11px; }
-    }
-
-    /* ===== 手機版面防爆版修正 =====
-       問題成因：Grid/Flex 子元素預設 min-width: auto，遇到不可斷行的長字串
-       （長型號、商品編號）或未限制寬度的圖片時，會把該欄位撐開，
-       導致整體版面寬度超出螢幕、出現橫向捲動。以下為疊加式修正，
-       不影響原本 css/index.css 等檔案，僅在既有版面基礎上加保險。 */
-
-    /* 全站安全網：任何情況下都不允許橫向捲動 */
+    /* ===== 手機版面防爆版修正（安全網，保持既有版面不跑版） ===== */
     html, body {
       max-width: 100%;
       overflow-x: hidden;
     }
 
-    /* Grid / Flex 子元素加上 min-width: 0，解除「內容最小寬度」對版面的撐爆 */
+    /* Grid / Flex 子元素解除「內容最小寬度」造成的撐爆 */
     .detail-layout > .gallery,
     .detail-layout > .detail-info,
     .product-grid > .product-card,
@@ -258,7 +31,7 @@
       min-width: 0;
     }
 
-    /* 商品文字欄位：長型號、長商品名稱、長編號強制換行，避免撐開容器 */
+    /* 長文字欄位強制換行 */
     #detailBrand,
     #detailName,
     #detailSubtitle,
@@ -273,7 +46,7 @@
       word-break: break-word;
     }
 
-    /* 圖片一律限制在容器寬度內，避免原始尺寸撐爆版面 */
+    /* 圖片一律限制在容器寬度內 */
     .gallery img,
     .thumb-row img,
     .product-image img,
@@ -281,10 +54,10 @@
       max-width: 100%;
       height: auto;
       object-fit: contain;
-      background: var(--bg, #fbf7f0);
+      background: var(--surface-soft);
     }
 
-    /* 縮圖列若圖片數量多，改為可橫向滑動，而不是把整個頁面撐寬 */
+    /* 縮圖列橫向滑動 */
     .thumb-row {
       display: flex;
       flex-wrap: nowrap;
@@ -296,18 +69,10 @@
       flex: 0 0 auto;
     }
 
-    /* ===== 主圖裁切修正 + 統一比例 =====
-       問題一：主圖容器原本用 object-fit: cover，會裁掉超出容器比例的部分。
-       改成 contain 讓照片完整顯示，多餘空間用背景色補滿。
-       問題二：容器高度原本會跟著每張照片的原始比例變動，導致不同商品的
-       主圖區塊忽高忽矮、視覺不一致。這裡加上固定的 aspect-ratio，
-       讓所有商品的主圖框永遠是同一個尺寸，不管原始照片是直的、橫的、
-       方的，都會用 contain 完整置中顯示在這個固定框內。
-       這裡加 !important 是為了確保能蓋過原本 css/index.css 裡可能存在的
-       object-fit: cover 或其他高度設定。 */
+    /* 主圖裁切修正 + 統一比例（含縮圖、商品卡） */
     .main-image {
       aspect-ratio: 4 / 3.6 !important;
-      background: var(--bg, #fbf7f0) !important;
+      background: var(--surface-soft) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -319,9 +84,8 @@
       object-fit: contain !important;
     }
 
-    /* 縮圖列、商品列表卡片同步套用，避免同樣的裁切問題出現在其他地方 */
     .thumb-row .thumb {
-      background: var(--bg, #fbf7f0) !important;
+      background: var(--surface-soft) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -331,13 +95,15 @@
     .product-image img,
     .member-order-card img {
       object-fit: contain !important;
-      background: var(--bg, #fbf7f0);
+      background: var(--surface-soft);
     }
   </style>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#" aria-label="回到 YA3S 首頁" data-page="list">YA<span>3S</span><span style="font-size: 15px;">日本中古/二手</span></a>
+    <a class="brand" href="#" aria-label="回到 YA3S 首頁" data-page="list">
+      YA<span>3S</span><small>日本中古/二手</small>
+    </a>
     <nav class="desktop-nav" aria-label="主選單">
       <div class="nav-dropdown">
         <a href="#products" data-page="list" data-scroll-target="#products">商品列表</a>
@@ -369,15 +135,14 @@
 
   <main>
     <section id="pageList">
-      <!-- 已修改：移除 hero-copy，並改為 Swiper 居中輪播結構 -->
-      <section class="hero" aria-label="YA3S 精品選物" style="padding: 40px 0; background-color: #fcfbfa;">
+      <section class="hero" aria-label="YA3S 精品選物">
         <div class="hero-container-wrapper">
-          
+
           <div class="swiper heroSwiper">
             <div class="swiper-wrapper" id="heroSwiperWrapper">
               <!-- 資料由 JS 動態渲染產生 -->
             </div>
-            
+
             <!-- 分頁圓點 -->
             <div class="swiper-pagination"></div>
           </div>
@@ -385,28 +150,28 @@
           <!-- 左右導航箭頭 -->
           <button type="button" class="swiper-button-prev hero-swiper-prev" aria-label="上一張"></button>
           <button type="button" class="swiper-button-next hero-swiper-next" aria-label="下一張"></button>
-          
+
         </div>
       </section>
 
       <section class="trust-row" aria-label="服務特色">
         <article>
-          <span>✓</span>
+          <i class="ti ti-shield-check" aria-hidden="true"></i>
           <h2>商品狀況清楚</h2>
           <p>每件商品附上狀況、價格與多張實拍圖。</p>
         </article>
         <article>
-          <span>◇</span>
+          <i class="ti ti-tags" aria-hidden="true"></i>
           <h2>精品品牌分類</h2>
           <p>依品牌快速篩選，手機瀏覽也順手。</p>
         </article>
         <article>
-          <span>↗</span>
+          <i class="ti ti-brand-line" aria-hidden="true"></i>
           <h2>LINE 快速詢問</h2>
           <p>看到喜歡的商品可直接帶品項詢問。</p>
         </article>
         <article>
-          <span>◎</span>
+          <i class="ti ti-truck" aria-hidden="true"></i>
           <h2>快速出貨處理</h2>
           <p>確認付款後盡快安排寄出，安全送達。</p>
         </article>
@@ -421,7 +186,8 @@
 
       <section class="section" id="products">
         <div class="section-heading">
-          <p class="eyebrow">上架商品</p>
+          <h2 class="section-title">上架商品</h2>
+          <p class="section-note">精選二手精品包款與小皮件</p>
         </div>
         <div class="search-wrap">
           <input id="searchInput" type="search" placeholder="搜尋品牌或品名，例如 LV、Gucci" autocomplete="off" />
@@ -444,7 +210,7 @@
           </button>
           <div class="thumb-row" id="thumbRow"></div>
           <div class="detail-actions">
-            
+
           </div>
         </div>
         <article class="detail-info">
@@ -481,23 +247,23 @@
         <div class="tab-panel active" id="tab-desc">
           <p id="descBody"></p>
           <ul>
-            <li>商品圖片皆使用現有素材，可直接用於手機展示。</li>
-            <li>價格與狀況可在程式商品資料中快速更新。</li>
-            <li>點選 LINE 詢問會帶入目前商品名稱，方便對話。</li>
+            <li>每件商品皆以實物拍攝，狀況與價格於商品頁如實標示。</li>
+            <li>本頁圖片為實際商品照，色差依螢幕顯示略有差異。</li>
+            <li>點選「我要詢問」會自動帶入商品名稱，方便快速與我們聯繫。</li>
           </ul>
         </div>
         <div class="tab-panel" id="tab-auth">
           <ul>
-            <li>建議實際交易前再次確認尺寸、附件、磨損與購買來源。</li>
-            <li>可補充防塵袋、盒裝、購證或保卡等資訊，提高買家信任。</li>
-            <li>商品售出後可將狀態改為已售出，避免重複詢問。</li>
+            <li>商品皆經逐件檢查，整理重點依品牌與品項有所不同。</li>
+            <li>若商品附有防塵袋、盒裝、購證或保卡等附件，可於 LINE 確認細節。</li>
+            <li>高單價商品建議再次確認尺寸與實際磨損狀態後再進行交易。</li>
           </ul>
         </div>
         <div class="tab-panel" id="tab-ship">
           <ul>
-            <li>建議以 LINE 確認付款、寄送與面交細節。</li>
-            <li>高單價商品可採面交或保價寄送。</li>
-            <li>若為代售商品，請先確認售後與退換規則。</li>
+            <li>交易以 LINE 私訊確認付款、寄送與面交細節。</li>
+            <li>高單價商品可採面交或保值寄送，保障雙方權益。</li>
+            <li>下單後系統會自動開啟 LINE，並帶入訂單編號與商品名稱。</li>
           </ul>
         </div>
       </section>
@@ -550,9 +316,7 @@
               <label for="registerPhoneInput">聯絡電話（選填）</label>
               <input type="tel" id="registerPhoneInput" placeholder="方便我們用電話聯絡您" maxlength="30" />
             </div>
-            <p class="auth-warning" style="font-size: 12px; color: #9f6b53; line-height: 1.6; margin: -6px 0 14px;">
-              ⚠️ 提醒：LINE ID 與聯絡電話一經送出即無法自行修改，如需更新請聯絡客服協助處理。
-            </p>
+            <p class="auth-warning">提醒：LINE ID 與聯絡電話一經送出即無法自行修改，如需更新請聯絡客服協助處理。</p>
             <button type="submit" class="primary-button wide">註冊並登入</button>
             <p class="auth-error" id="registerErrorFront" hidden></p>
           </form>
@@ -619,36 +383,37 @@
   <div class="back-bar">
     <button class="back-button" type="button" id="storeBackButton">‹ 回到商品列表</button>
   </div>
-  
-  <div class="store-content" style="max-width: 1000px; margin: 40px auto; padding: 40px 30px; background-color: #FFFFFF;">
-    
-    <h1 style="text-align: center; margin-bottom: 40px; font-family: 'DFKai-SB', 'BiauKai', sans-serif; font-size: 36px; color: #252321; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);">店家資訊</h1>
-    
-    <div class="store-layout" style="display: flex; gap: 50px; justify-content: center; align-items: center; flex-wrap: wrap;">
-      
-      <div class="store-details" style="flex: 1; min-width: 300px; max-width: 400px; line-height: 2.2; font-size: 1.05rem;">
-        <div style="margin-bottom: 25px;">
-          <h3 style="margin: 0 0 8px 0; font-size: 1.2rem; color: #333;">📍 門市地址</h3>
-          <p style="margin: 0; color: #666;">台南市東區XXX路XX號（靠近XXX）</p>
+
+  <div class="store-content">
+
+    <h1 class="store-title">店家資訊</h1>
+
+    <div class="store-layout">
+
+      <div class="store-details">
+        <div class="store-info-group">
+          <h3>門市地址</h3>
+          <p>台南市東區XXX路XX號（靠近XXX）</p>
         </div>
-        
-        <div style="margin-bottom: 25px;">
-          <h3 style="margin: 0 0 8px 0; font-size: 1.2rem; color: #333;">⏰ 營業時間</h3>
-          <p style="margin: 0; color: #666;">週一至週日 13:00 - 21:00</p>
+
+        <div class="store-info-group">
+          <h3>營業時間</h3>
+          <p>週一至週日 13:00 - 21:00</p>
         </div>
-        
-        <div style="margin-bottom: 25px;">
-          <h3 style="margin: 0 0 8px 0; font-size: 1.2rem; color: #333;">📞 聯絡電話</h3>
-          <p style="margin: 0; color: #666;">06-XXXXXXX</p>
+
+        <div class="store-info-group">
+          <h3>聯絡電話</h3>
+          <p>06-XXXXXXX</p>
         </div>
       </div>
-      
-      <div class="store-map-wrapper" style="flex: 1; min-width: 320px; max-width: 420px;">
-        <div style="width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border: 1px solid #eee;">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3673.555536604933!2d120.22977077534163!3d22.966590418414892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x346e741fbda4b01d%3A0x785f964b4fe1280!2z6Ie65Y2X5biC5pS_5bqc6K2m5a-f5bGA56ys5LiA5YiG5bGA5b636auY5rS-5Ye65omA!5e0!3m2!1szh-TW!2stw!4v1782578684048!5m2!1szh-TW!2stw" style="border:0; width: 100%; height: 100%; display:block;" 
-            allowfullscreen="" 
-            loading="lazy" 
+
+      <div class="store-map-wrapper">
+        <div class="store-map-container">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3673.555536604933!2d120.22977077534163!3d22.966590418414892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x346e741fbda4b01d%3A0x785f964b4fe1280!2z6Ie65Y2X5biC5pS_5bqc6K2m5a-f5bGA56ys5LiA5YiG5bGA5b636auY5rS-5Ye65omA!5e0!3m2!1szh-TW!2stw!4v1782578684048!5m2!1szh-TW!2stw"
+            style="border:0; width: 100%; height: 100%; display:block;"
+            allowfullscreen=""
+            loading="lazy"
             referrerpolicy="no-referrer-when-downgrade">
           </iframe>
         </div>
@@ -672,7 +437,7 @@
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  
+
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -681,5 +446,6 @@
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
   <script src="js/index.js"></script>
+  <script src="js/reveal.js"></script>
 </body>
 </html>
