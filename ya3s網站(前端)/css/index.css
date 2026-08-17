@@ -194,11 +194,24 @@ img {
 
 .nav-dropdown > a::after {
   content: '▾';
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  height: auto;
+  width: auto;
+  background: none;
+  transform: none;
+  transform-origin: center;
+  color: var(--nav-muted);
   font-size: 10px;
+  line-height: 1;
   transition: transform 0.2s;
 }
 
-.nav-dropdown:hover > a::after {
+.nav-dropdown:hover > a::after,
+.nav-dropdown:focus-within > a::after {
+  color: var(--nav-ink);
   transform: rotate(180deg);
 }
 
